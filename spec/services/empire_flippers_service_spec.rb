@@ -40,5 +40,27 @@ RSpec.describe EmpireFlippersService do
       result = service.fetch_all_listings
       expect(result).to eq([])
     end
+
+    it 'logs an error and stops on API failure' do
+      stub_request(:get, "https://api.empireflippers.com/api/v1/listings/list?limit=100&listing_status=For%20Sale&page=1")
+        .to_return(status: 500, body: 'Internal Server Error')
+
+      expect(Rails.logger).to receive(:error).with(/Failed to fetch page 1/)
+
+      result = service.fetch_all_listings
+      expect(result).to eq([])
+    end
+
+    it 'handles malformed JSON and returns an empty array' do
+      stub_request(:get, "https://api.empireflippers.com/api/v1/listings/list?limit=100&listing_status=For%20Sale&page=1")
+        .to_return(
+          status: 200,
+          body: 'NOT JSON',
+          headers: { 'Content-Type' => 'application/json' }
+        )
+
+      result = service.fetch_all_listings
+      expect(result).to eq([])
+    end
   end
 end
