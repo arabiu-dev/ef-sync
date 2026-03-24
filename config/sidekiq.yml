@@ -1,0 +1,6 @@
+:schedule:
+  sync_listings:
+    cron: '0 0 * * *' # Every day at midnight
+    class: 'SyncListingsJob'
+    queue: default
+    description: 'Job to sync listings from Empire Flippers to HubSpot daily'
