@@ -66,18 +66,18 @@ config/sidekiq.yml      — schedules the job to run daily at midnight UTC
 Each listing stores the HubSpot `deal_id` after creation. On subsequent runs the job skips any listing that already has a `hubspot_deal_id` — ensuring no duplicate deals are created in HubSpot.
 
 ## Running Tests
-
 ```bash
 bundle exec rspec
 ```
 
-**7 examples, 0 failures**
+**19 examples, 0 failures**
 
-| Test | Coverage |
+| Test File | Coverage |
 |---|---|
-| EmpireFlippersService | Fetches listings, handles empty response |
-| HubspotService | Creates deal with correct properties |
+| EmpireFlippersService | Fetches listings, handles empty response, API failure, malformed JSON |
+| HubspotService | Creates deal with correct properties, correct amount, description, error handling |
 | SyncListingsJob | Creates new listing + deal, skips duplicates, updates existing listings |
+| Listing model | Validations, scopes, synced_to_hubspot? helper |
 
 ## Daily Schedule
 
