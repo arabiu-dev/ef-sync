@@ -2,9 +2,9 @@ class SyncListingsJob
   include Sidekiq::Job
 
   def perform
-    listings_data = EmpireFlippersService.new.fetch_all_listings
+    listings_data   = EmpireFlippersService.new.fetch_all_listings
     hubspot_service = HubspotService.new
-    results = { created: 0, updated: 0, failed: 0 }
+    results         = { created: 0, updated: 0, failed: 0 }
 
     listings_data.each do |listing_data|
       begin
@@ -17,7 +17,7 @@ class SyncListingsJob
         listing.summary        = listing_data['summary']
         listing.save!
 
-        if listing.hubspot_deal_id.present?
+        if listing.synced_to_hubspot?
           results[:updated] += 1
         else
           deal = hubspot_service.create_deal(listing)
