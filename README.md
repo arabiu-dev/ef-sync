@@ -1,4 +1,4 @@
-# Empire Flippers Sync
+# Empire Sync
 
 A Ruby on Rails application that syncs Empire Flippers marketplace listings to HubSpot as Deal objects on a daily basis.
 
@@ -7,6 +7,7 @@ A Ruby on Rails application that syncs Empire Flippers marketplace listings to H
 - Fetches all **"For Sale"** listings from the Empire Flippers public API once per day
 - Stores listing data in a PostgreSQL database
 - Creates **Deal objects in HubSpot** for each listing
+- Updates existing HubSpot deals when listing data changes (price, summary)
 - Prevents duplicate deals from being created
 
 ## Tech Stack
@@ -56,28 +57,32 @@ SyncListingsJob.new.perform
 
 ```
 EmpireFlippersService   — fetches For Sale listings from the API (handles pagination)
-HubspotService          — creates Deal objects in HubSpot
+HubspotService          — creates and updates Deal objects in HubSpot
 SyncListingsJob         — orchestrates the sync, prevents duplicates via hubspot_deal_id
 config/sidekiq.yml      — schedules the job to run daily at midnight UTC
 ```
 
-## Duplicate Prevention
+## Duplicate Prevention & Deal Updates
 
-Each listing stores the HubSpot `deal_id` after creation. On subsequent runs the job skips any listing that already has a `hubspot_deal_id` — ensuring no duplicate deals are created in HubSpot.
+Each listing stores the HubSpot `deal_id` after creation. On subsequent runs:
+- If a listing already has a `hubspot_deal_id` — the existing deal is **updated** with the latest price and summary
+- If no `hubspot_deal_id` exists — a new deal is **created** in HubSpot
+
+This ensures no duplicate deals are created and deal data stays in sync with the latest listing information.
 
 ## Running Tests
+
 ```bash
 bundle exec rspec
 ```
 
-**19 examples, 0 failures**
+**7 examples, 0 failures**
 
-| Test File | Coverage |
+| Test | Coverage |
 |---|---|
-| EmpireFlippersService | Fetches listings, handles empty response, API failure, malformed JSON |
-| HubspotService | Creates deal with correct properties, correct amount, description, error handling |
+| EmpireFlippersService | Fetches listings, handles empty response |
+| HubspotService | Creates deal with correct properties |
 | SyncListingsJob | Creates new listing + deal, skips duplicates, updates existing listings |
-| Listing model | Validations, scopes, synced_to_hubspot? helper |
 
 ## Daily Schedule
 

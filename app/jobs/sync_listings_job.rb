@@ -18,6 +18,7 @@ class SyncListingsJob
         listing.save!
 
         if listing.synced_to_hubspot?
+          hubspot_service.update_deal(listing)
           results[:updated] += 1
         else
           deal = hubspot_service.create_deal(listing)

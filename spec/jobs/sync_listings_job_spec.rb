@@ -69,6 +69,7 @@ RSpec.describe SyncListingsJob, type: :job do
       it 'updates existing listing data and skips creating a HubSpot deal' do
         # Expect create_deal NOT to be called
         expect(hubspot_service).not_to receive(:create_deal)
+        expect(hubspot_service).to receive(:update_deal).with(existing_listing)
 
         expect {
           described_class.new.perform

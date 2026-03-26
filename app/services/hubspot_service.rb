@@ -16,6 +16,19 @@ class HubspotService
     @client.crm.deals.basic_api.create(body: { properties: properties })
   end
 
+  def update_deal(listing)
+    @client.crm.deals.basic_api.update(
+      deal_id: listing.hubspot_deal_id,
+      body: {
+        properties: {
+          "amount"      => listing.listing_price&.to_s,
+          "description" => listing.summary,
+          "dealname"    => deal_name(listing.listing_number)
+        }
+      }
+    )
+  end
+
   private
 
   def deal_name(listing_number)
